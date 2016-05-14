@@ -39,6 +39,7 @@ import com.moveatis.interfaces.CategorySet;
 import com.moveatis.interfaces.EventGroup;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.inject.Inject;
 import org.slf4j.Logger;
@@ -91,5 +92,25 @@ public class CategorySetBean extends AbstractBean<CategorySetEntity> implements 
         }
         
         return publicCategorySets;
+    }
+
+    @Override
+    public void removeCategoryFromCategorySet(CategorySetEntity categorySet, CategoryEntity categoryEntity) {
+        Map<Integer, CategoryEntity> categories = categorySet.getCategoryEntitys();
+        Integer keyFound = -1;
+        
+        for(Integer key : categories.keySet()) {
+            if(categories.get(key).getId().equals(categoryEntity.getId())) {
+                keyFound = key;
+            }
+        }
+        
+        if(keyFound > -1) {
+            categories.remove(keyFound);
+        }
+        
+        categorySet.setCategoryEntitys(categories);
+        
+        em.merge(categorySet);
     }
 }

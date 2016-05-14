@@ -43,6 +43,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -59,6 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.faces.view.ViewScoped;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.primefaces.extensions.model.timeline.TimelineGroup;
 
 /**
@@ -192,14 +194,40 @@ public class SummaryManagedBean implements Serializable {
         FacesContext context = FacesContext.getCurrentInstance();
         ResourceBundle bundle = context.getApplication().getResourceBundle(context, "msg");
         try {
-            File f = File.createTempFile("observationdata", ".csv");
+            String fileName = this.observation.getName();
+            // replace non-word ![a-ZA-Z_0-9] chars with underscope
+            fileName = fileName.replaceAll("\\W", "_");
+            File f = File.createTempFile(fileName, ".csv");
+            
+            StringBuilder msgBuilder = new StringBuilder();
+            String description = StringUtils.defaultIfEmpty(observation.getDescription(), 
+                    bundle.getString("sum_descriptionNotSet"));
+            String target = StringUtils.defaultIfEmpty(observation.getTarget(), 
+                    bundle.getString("sum_targetNotSet"));
+            String descriptionPartOfMessage = MessageFormat.format(bundle.getString("sum_descriptionWas"), description);
+            String targetPartOfMessage = MessageFormat.format(bundle.getString("sum_targetWas"), target);
+            String messageWithSender = MessageFormat.format(bundle.getString("sum_message"), 
+                    sessionBean.getLoggedIdentifiedUser().getGivenName());
+            
+            msgBuilder
+                    .append(messageWithSender)
+                    .append("\n\n")
+                    .append(descriptionPartOfMessage)
+                    .append("\n\n")
+                    .append(targetPartOfMessage)
+                    .append("\n\n")
+                    .append(bundle.getString("emailSignature"));
+            
+            
             FileOutputStream fos = new FileOutputStream(f);
             csv.buildCSV(fos, observation, ",");
             fos.flush();
             String[] recipients = {recipientEmail};
             File[] files = {f};
             mailerEJB.sendEmailWithAttachment(recipients, bundle.getString("sum_subject"),
-                    bundle.getString("sum_message"), files);
+                    msgBuilder.toString(), files);
+            //remove the temp file after sending it
+            f.delete();
         } catch (IOException ex) {
             LOGGER.error("Väliaikaisen tiedoston luonti epäonnistui", ex);
         }

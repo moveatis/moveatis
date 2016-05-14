@@ -30,6 +30,7 @@
 package com.moveatis.interfaces;
 
 import com.moveatis.category.CategoryEntity;
+import com.moveatis.category.CategorySetEntity;
 import java.util.List;
 import javax.ejb.Local;
 
@@ -45,6 +46,8 @@ public interface Category {
     void edit(CategoryEntity categoryEntity);
 
     void remove(CategoryEntity categoryEntity);
+    
+    void removeFromCategorySet(CategorySetEntity whichCategorySet, CategoryEntity whichCategory);
 
     CategoryEntity find(Object id);
     

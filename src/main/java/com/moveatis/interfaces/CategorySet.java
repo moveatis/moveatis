@@ -29,6 +29,7 @@
  */
 package com.moveatis.interfaces;
 
+import com.moveatis.category.CategoryEntity;
 import com.moveatis.category.CategorySetEntity;
 import java.util.List;
 import java.util.Set;
@@ -46,6 +47,8 @@ public interface CategorySet {
     void edit(CategorySetEntity categoryTemplateEntity);
 
     void remove(CategorySetEntity categoryTemplateEntity);
+    
+    void removeCategoryFromCategorySet(CategorySetEntity categorySet, CategoryEntity categoryEntity);
 
     CategorySetEntity find(Object id);
 

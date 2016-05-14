@@ -31,7 +31,9 @@ package com.moveatis.category;
 
 import com.moveatis.abstracts.AbstractBean;
 import com.moveatis.interfaces.Category;
+import com.moveatis.interfaces.CategorySet;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -45,6 +47,9 @@ public class CategoryBean extends AbstractBean<CategoryEntity> implements Catego
 
     @PersistenceContext(unitName = "LOTAS_PERSISTENCE")
     private EntityManager em;
+    
+    @Inject
+    private CategorySet categorySetEJB;
 
     @Override
     protected EntityManager getEntityManager() {
@@ -61,6 +66,12 @@ public class CategoryBean extends AbstractBean<CategoryEntity> implements Catego
         query.setParameter("label", label);
         
         return query.getSingleResult();
+    }
+
+    @Override
+    public void removeFromCategorySet(CategorySetEntity whichCategorySet, CategoryEntity whichCategory) {
+        super.remove(whichCategory);
+        categorySetEJB.removeCategoryFromCategorySet(whichCategorySet, whichCategory);
     }
 }
     

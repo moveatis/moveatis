@@ -137,6 +137,7 @@ public class CategorySetManagedBean implements Serializable {
 
         // Remove removed categories
         if (categorySetEntity.getCategoryEntitys() != null) {
+            
             for (CategoryEntity categoryEntity : newCategoryEntities) {
                 Long id = categoryEntity.getId();
                 if (id != null) {
@@ -145,6 +146,7 @@ public class CategorySetManagedBean implements Serializable {
             }
             for (CategoryEntity categoryEntity : categorySetEntity.getCategoryEntitys().values()) {
                 if (oldCategories.containsKey(categoryEntity.getId())) {
+                    
                     categoryEJB.remove(categoryEntity);
                 }
             }
@@ -159,7 +161,7 @@ public class CategorySetManagedBean implements Serializable {
                 labelEntity.setText(label);
                 // Create label entity before other categories in the loop
                 // to prevent creating non-unique labels. Is this required?
-                labelEJB.create(labelEntity);
+                // labelEJB.create(labelEntity); //Sami: should not be required because CategoryEntity has cascade=PERSIST and MERGE
             }
 
             categoryEntity.setLabel(labelEntity);
