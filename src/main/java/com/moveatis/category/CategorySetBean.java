@@ -110,7 +110,6 @@ public class CategorySetBean extends AbstractBean<CategorySetEntity> implements 
         }
         
         categorySet.setCategoryEntitys(categories);
-        
-        em.merge(categorySet);
+        super.edit(categorySet);
     }
 }

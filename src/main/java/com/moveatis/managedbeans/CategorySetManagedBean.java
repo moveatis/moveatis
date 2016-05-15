@@ -120,8 +120,6 @@ public class CategorySetManagedBean implements Serializable {
         eventGroupEntity.setCategorySets(categorySets);
 
         categorySetEJB.create(categorySetEntity);
-
-        //controlManagedBean.addCategorySet(categorySetEntity);
     }
 
     public void createAndEditCategorySet(EventGroupEntity eventGroupEntity,
@@ -133,22 +131,52 @@ public class CategorySetManagedBean implements Serializable {
 
         Map<Integer, CategoryEntity> orderedCategories = new TreeMap<>();
         List<CategoryEntity> unorderedCategories = new ArrayList<>();
-        HashMap<Long, CategoryEntity> oldCategories = new HashMap<>();
+        
+        boolean doNotRemove = false;
 
-        // Remove removed categories
+        /*
+        * Remove those categoryentities which were not part of newCategoryEntity list.
+        * Algorithm goes as follows:
+        *   1. add ids of categoryentities in newCategoryEntity list to a list,
+            so the list only has those categoryentities that are to be kept in categoryset.
+        *   2. Compare previous list to list of all categoryentities of categoryset
+        *   3. If categoryentity is not in first list but is in second, it must be removed.
+        */
         if (categorySetEntity.getCategoryEntitys() != null) {
             
-            for (CategoryEntity categoryEntity : newCategoryEntities) {
-                Long id = categoryEntity.getId();
-                if (id != null) {
-                    oldCategories.put(id, categoryEntity);
+            List<Long> idForNewCategories = new ArrayList<>();
+            List<Integer> keysForCategoriesToBeRemoved = new ArrayList<>();
+            
+            // newCategoryEntities containts the categoryentities user wants to keep in categoryset
+            for(CategoryEntity newCategoryEntity : newCategoryEntities) {
+                if(newCategoryEntity.getId() != null) {
+                    idForNewCategories.add(newCategoryEntity.getId());
                 }
             }
-            for (CategoryEntity categoryEntity : categorySetEntity.getCategoryEntitys().values()) {
-                if (oldCategories.containsKey(categoryEntity.getId())) {
-                    
-                    categoryEJB.remove(categoryEntity);
+            
+            // get all categoryentities for categoryset
+            Map<Integer, CategoryEntity> categories = categorySetEntity.getCategoryEntitys();
+            
+            // check if categoryentity is part of newcategoryentities list.
+            for(Integer key : categories.keySet()) {
+                
+                doNotRemove = false;
+                
+                CategoryEntity categoryEntity = categories.get(key);
+                
+                if(idForNewCategories.contains(categoryEntity.getId())) {
+                    doNotRemove = true;
                 }
+                
+                // if its not, add it to be removed list.
+                if(!doNotRemove) {
+                    keysForCategoriesToBeRemoved.add(key);
+                }
+            }
+            
+            // remove those categoryentities which were part of toBeRemoved list.
+            for(Integer key : keysForCategoriesToBeRemoved) {
+                categoryEJB.removeFromCategorySet(categorySetEntity, categorySetEntity.getCategoryEntitys().get(key));
             }
         }
 

@@ -72,6 +72,8 @@ public class CategoryBean extends AbstractBean<CategoryEntity> implements Catego
     public void removeFromCategorySet(CategorySetEntity whichCategorySet, CategoryEntity whichCategory) {
         super.remove(whichCategory);
         categorySetEJB.removeCategoryFromCategorySet(whichCategorySet, whichCategory);
+        whichCategory.setCategorySet(null);
+        super.edit(whichCategory);
     }
 }
     

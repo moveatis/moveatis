@@ -36,6 +36,8 @@ import java.util.Locale;
 import java.util.TimeZone;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -46,6 +48,7 @@ import javax.faces.event.ActionEvent;
 public class UserManagedBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserManagedBean.class);
     
     private Locale locale;
     private TimeZone timeZone;
